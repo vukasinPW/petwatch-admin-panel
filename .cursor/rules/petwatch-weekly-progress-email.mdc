@@ -1,0 +1,53 @@
+---
+description: Weekly Friday progress email format for Vukasin. Use when writing the weekly status mail, week update, or Friday progress recap.
+alwaysApply: false
+---
+
+# Weekly progress email
+
+Plain text only. No bullets, no bold, no App/Admin headings. Deliver the full mail in chat so it can be copied.
+
+## Layout
+
+1. Intro (one line)
+2. Blank line
+3. `Week N` (number only — not “Week N – Progress Update”)
+4. One task per line: `Task name - status` (optional detail in parentheses before the dash)
+5. Blank line
+6. `Tasks for week N+1:`
+7. Next-week tasks, one per line, no status
+8. Blank line
+9. `Kind regards,` then `Vukasin` on the next line
+
+## Status words (use only these)
+
+- `completed`
+- `in progress`
+- `95% completed` (or another percent if he gives one)
+- `waiting for review from the rest of the team`
+
+Never write `done`.
+
+## Canonical example (Week 36)
+
+```
+Here’s a quick overview of what I worked on last week, along with the current status of each task:
+
+Week 36
+Admin panel – promo code design - completed
+Admin panel – finance - completed
+Admin panel – notification - in progress
+Admin panel – notification support - completed
+Admin panel – content (support can handle all the texts and images that are changeable in the app, e.g. services, vaccines, information, etc.) - in progress
+
+Tasks for week 37:
+Admin panel – content
+Admin panel – notification
+
+Kind regards,
+Vukasin
+```
+
+Next-week lines are only what he names — do not add “Keep working on admin panel” or other filler.
+
+When he corrects wording, status, or layout, patch this example in the same turn. Do not invent tasks. Pull last week’s work from chats and Figma; ask if a status is unclear.

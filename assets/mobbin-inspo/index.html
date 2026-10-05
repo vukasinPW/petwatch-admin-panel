@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Session page — Mobbin board</title>
+  <style>
+    :root { color: #252749; background: #fff; font-family: Inter, system-ui, sans-serif; }
+    body { margin: 0 auto; max-width: 1080px; padding: 32px 24px 80px; }
+    h1 { font-size: 28px; font-weight: 600; margin: 0 0 8px; }
+    p.lead { color: #8e8e8e; margin: 0 0 40px; }
+    h2 { font-size: 18px; font-weight: 600; margin: 40px 0 8px; }
+    .note { color: #8e8e8e; font-size: 14px; margin: 0 0 16px; }
+    figure { margin: 0 0 28px; }
+    img { width: 100%; max-width: 900px; height: auto; border: 1px solid #e8e8e8; border-radius: 12px; display: block; background: #f7f7f7; }
+    figcaption { font-size: 13px; color: #8e8e8e; margin-top: 8px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .row figure img { max-width: 100%; }
+    @media (max-width: 800px) { .row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <h1>Session page — Mobbin board</h1>
+  <p class="lead">What to take for PetWatch session detail. Not a Figma design.</p>
+
+  <h2>1. Page structure — Navan</h2>
+  <p class="note">Copy: three columns, pickup/drop in the middle, Cancel in Manage. Skip the cancel modal.</p>
+  <figure>
+    <img src="navan-trip.ok.png" alt="Navan trip item" />
+    <figcaption>Navan — trip item (pickup / drop times + Manage)</figcaption>
+  </figure>
+  <figure>
+    <img src="navan-canceled.ok.png" alt="Navan cancel modal" />
+    <figcaption>Navan — skip this overlay; keep the page behind it</figcaption>
+  </figure>
+
+  <h2>2. Field job — Jobber</h2>
+  <p class="note">A visit/job is our session. Assigned person, dates, More actions. Skip Notes.</p>
+  <figure>
+    <img src="jobber-1.ok.png" alt="Jobber job detail" />
+    <figcaption>Jobber — job detail</figcaption>
+  </figure>
+  <figure>
+    <img src="jobber-2.ok.png" alt="Jobber request" />
+    <figcaption>Jobber — request (skip Notes)</figcaption>
+  </figure>
+
+  <h2>3. Start / end times — Turo</h2>
+  <p class="note">Green Starting at / red Ending at. Use that pair on the session page.</p>
+  <figure>
+    <img src="turo-trip.ok.png" alt="Turo starting and ending" />
+    <figcaption>Turo — starting / ending badges</figcaption>
+  </figure>
+
+  <h2>4. Appointment as a page — Fresha</h2>
+  <p class="note">Full-page time + duration + manage list. Not a popup.</p>
+  <figure>
+    <img src="fresha.ok.png" alt="Fresha appointment" />
+    <figcaption>Fresha — appointment details</figcaption>
+  </figure>
+
+  <h2>5. Session stepper — Fiverr</h2>
+  <p class="note">Pickup → Live → Drop as a track. No Finish button.</p>
+  <figure>
+    <img src="fiverr.ok.png" alt="Fiverr order track" />
+    <figcaption>Fiverr — order track</figcaption>
+  </figure>
+
+  <h2>6. Two-stop path — Waymo</h2>
+  <p class="note">Times on Pickup and Dropoff. Skip the map.</p>
+  <figure>
+    <img src="waymo.ok.png" alt="Waymo pickup dropoff" />
+    <figcaption>Waymo — pickup / dropoff</figcaption>
+  </figure>
+
+  <h2>7. Live job + assign + cancel</h2>
+  <p class="note">Time window on top. “Driver to be assigned” = reassign. Cancel on the page.</p>
+  <div class="row">
+    <figure>
+      <img src="woolworths.ok.png" alt="Woolworths order" />
+      <figcaption>Woolworths — order details</figcaption>
+    </figure>
+    <figure>
+      <img src="zomato.ok.png" alt="Zomato live order" />
+      <figcaption>Zomato — live order</figcaption>
+    </figure>
+  </div>
+
+  <h2>8. Checklist only</h2>
+  <p class="note">Rows + checkboxes. We group by pet.</p>
+  <div class="row">
+    <figure>
+      <img src="superpower.ok.png" alt="Superpower checklist" />
+      <figcaption>Superpower — checklist</figcaption>
+    </figure>
+    <figure>
+      <img src="tiimo.ok.png" alt="Tiimo checklist" />
+      <figcaption>Tiimo — checklist</figcaption>
+    </figure>
+  </div>
+</body>
+</html>

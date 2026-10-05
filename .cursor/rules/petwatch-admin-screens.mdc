@@ -1,0 +1,490 @@
+---
+description: How to design PetWatch admin panel screens in Figma — layout skeleton, component keys, tokens, and composition rules derived from the live reference screens
+alwaysApply: true
+---
+
+# PetWatch Admin Panel — screen design spec
+
+Derived from a teardown of the live reference screens on the `Design` page
+(`6449:2000`) of the Admin-Panel file. Numbers here are measured, not inferred.
+
+## Sources
+
+| Thing | Value |
+|---|---|
+| Admin-Panel file key | `rc6tFk9QGVqOFD3ht9Upt8` |
+| App Design library key | `lk-dc352a9569e6e9b682db4f1188af74ef8db687083d59b95594642155888ecc08540e924bd3f3361337ce2440a85c48ef50ce4c64450500867e1c60649edd78b2` |
+| Admin Panel library key | `lk-962bfedb77ab1cd6662be54af6ef2b9bab680becde2ce023bb6c9b07c8c4be39576df4de580760a76e647009f7b2b1df1f3d60e66d72c5d92c5363c7b75a4f37` |
+| Reference: list page | `6902:28662` (Pet profiles, 1440×1171) |
+| Reference: detail page | `6939:23438` (single-pet-profile, 1440×2695) |
+| Reference: stats page | `6926:21682` (Pet profile statistics, 1440×3678) |
+
+Components live in the Admin Panel library. Colors live in App Design
+(`Semantic - Colors`, `Primitivis`). Type line-heights live in Admin Panel (`Text`).
+
+## Page skeleton
+
+Frame is 1440 wide. Sidebar 248, content column 1192, content gutter 32, so the
+working width every element snaps to is **1128**.
+
+Vertical anchors on the list page, absolute within the frame:
+
+| y | Element |
+|---|---|
+| 32 | Breadcrumb + title block (breadcrumb row 18 tall, 4 gap, title 38 tall) |
+| 32 | `Notifications/profile` top-right of the content column, 233×48 at x=927 (32px right gutter). Not in the sidebar. Same on every 1440 admin screen. Reference: Pet Sitter List - Table View (`7013:26251`). Bell opens **Notifications overlay** (`7907:113085`): dim 70% + right `Notification panel`. Delete all opens the 659 confirm. Avatar / name opens **Profile overlay** (`7918:111704`): same dim + right `Profile panel`. |
+| 112 | `tabsss`, full-bleed 1192 wide, items inset to 1128, 38 tall |
+| 178 | `General info` KPI row, 1128×192 |
+| 398 | Toolbar row: `segmented control` left, action buttons right, 40 tall |
+| 469 | `Table control`, 1128×56 |
+| ~541 | `Table` |
+| 1136 | `Table footer`, 1128×32 |
+
+Section gaps are 20 / 28 / 28 / 24 — all multiples of 4. Keep new sections on
+that rhythm.
+
+Sidebar internals: logo at (12, 20) 158×26; search field 224×40 at y=70; nav
+group 224×534 at y=134; nav items 30 tall on a 34 stride; children indented 32
+to a width of 192.
+
+**Sidebar component** `6939:22707` (key `2c6a066684e44cdbc6f23b54aa6733323bd1909e`)
+is the nav on every 1440 admin screen except Login / Reset password (no sidebar).
+Instance fills the screen height. Nested `Tab` (`Property 1`: Default / Cliked /
+Selected) + `Parent item` (Selected / Default). One destination selected per
+screen — expand only that parent (`Cliked`); collapse the rest (`Default`).
+
+Leaf tabs use `Selected` (coral pill): Home · PET SITTER · Bookings · FINANCE ·
+MARKETING · Promo code · Admin users · Map.
+
+Group tabs stay `Cliked` with the matching `Parent item` `Selected`:
+
+| Screen family | Selected |
+|---|---|
+| Dashboard pages (PO/PS/Finance/Admin home) | **Home** |
+| Pet owner list / profile / create / overlays (incl. Notifications & profile chrome) | PET OWNER → **Pet owner account** |
+| Pet profile list / detail / create / pet reviews | PET OWNER → **Pet profile** |
+| Pet sitter list / profile / create / overlays | **PET SITTER** |
+| Bookings / sessions (incl. a session copy parked under Finance) | **Bookings** |
+| Finance overview / payouts / transactions / refunds | **FINANCE** |
+| Promo codes | **Promo code** |
+| Notifications home | Notifications → **All notification** |
+| Support notifications (sent / create / templates) | Notifications → **Support notifications** |
+| Content catalog children | Content → that child (`Pet services` · `Additional services` · `Pets` · `Vaccines` · `FAQ` · `FAQ categories` · `Pet sitter home` · `Notification icons`) |
+| Admin users | **Admin users** |
+| In-app feedback | reviews → **Feedbacks** |
+| Store reviews | reviews → **Store reviews** |
+
+Owner/sitter/pet **profile reviews** stay on that entity’s dest, not Reviews.
+Catalog **Pets** (types) is Content → Pets, not Pet profile.
+
+## Domain flows (product, not navigation)
+
+**Login** (`Login`, `7901:111557`) is a split 1440×1024 — no sidebar. Left: `Logo` White BG · **Log in** (`Headings/H4 - dashboard`) · Email + Password · Remember me (`Checkbox` 24) + `Link` **Forgot password?** · **Log in** Primary Brand Large. Form 400, vertically centered. No create-account. Right: rounded 24 image placeholder. Error twins sit to the right (`7901:111701` wrong password · `7901:111889` unknown email).
+
+**Reset password** follows Buffer’s email-recovery path (not the app OTP). Same split shell. Screens in `Login` (`7901:111556`): empty email `7908:138584` · filled `7908:138602` · recovery sent `7908:138620` · new password + `Requirements` not confirmed `7908:138638` · all confirmed `7908:138656` · success overlay `7914:111598` (dim 70% + 659 `Pop up` on the filled screen: **Password reset successfully**, **Continue** Primary Brand into the panel). CTAs: **Send recovery** (Disable until email) · **Reset password** (Disable until rules pass) · **Back to log in** (email + recovery-sent only). Product: [`admin-users.md`](../../docs/product/flows/admin-users.md).
+
+**Pet profile status.** Created → `Registered`. Support reviews passport +
+vaccination record (AI scanning is planned; until then review is manual) →
+`Approved`. If microchip number or a mandatory vaccine expires, status returns
+to `Registered` automatically and the owner is notified via push + email. No
+rejection-reason form — the owner is not told *why* via admin. FigJam:
+`Flow — Pet profile status lifecycle`.
+
+**Pet sitter onboarding.** Download app → sign up → verify identity. UAE PASS
+sign-up skips identity verification (already verified). Then join Academy →
+finish Academy → set up the full profile → ready to receive bookings. FigJam:
+`Flow — Pet sitter onboarding`.
+
+**Pet sitter account statuses (5).** Registered → Verified → In academy →
+Graduated → Approved. Mapping (product): **In academy** = on the web Academy;
+**Graduated** = Academy confirmed, still setting up the operating profile;
+**Approved** = setup done, visible to owners. KPI row on `Pet Sitter List - Table View` (`7013:26251`)
+is structure 1 plus a Total card (4 cards, `General info` Property 1=4):
+
+| Card | Variant | Big number | Secondary |
+|---|---|---|---|
+| Total sitters | 1 line | all 5 statuses | trend only (no status split) |
+| Pre-academy | 2 | Registered + Verified | Registered · Verified |
+| Academy | 2 | In academy + Graduated | In academy · Graduated |
+| Approved | 1 line | Approved | trend only |
+
+Icons: `users` / `user-plus` / `book-open` / `user-check`. Icon chips:
+Dark blue / Info / warning / Success. Table status filters and columns are
+still placeholders until confirmed.
+
+**PS statistics** (`Pet Sitter List - Statistics Dashboard`, `7024:28691`)
+keeps the same 4 KPI cards, then Graphics-kit panels only (no booking):
+sitters through time, by status over time, by emirate, time to approved,
+new sitters, by gender, approved share, time in stage, UAE PASS vs manual.
+Funnel uses existing `Column` + `.column stats`, not a Mixpanel-style
+explorer. Line series stay on the secondary palette: red = total, warning = pre-academy, info =
+academy, success = approved.
+
+**Sitter card colors** follow the same header-tint pattern as `User card`.
+Pending badge label is `Registered`, matching PO. `Sitter card` /
+`Sitter status` live on the Components page; card view screen is
+`Pet Sitter List - Card View` (`7021:91173`), right of the table view.
+
+**Sitter — General** (`Pet Sitter Profile - General Tab`, `7035:28467`) sits
+to the right of the statistics dashboard. Same two-column profile shell as
+Pet Owner General. Tabs: General / Booking history / Payout history /
+Notification tracking. Header uses `Sitter status` (Approved), not `User status`.
+General details include Occupation and **IBAN status** (Mamo Pay, read-only —
+admin cannot approve/reject IBAN). Gallery shows Cover + `n/12`. Availability
+card: weekly hours + Home pause (scheduled break only in Edit). Same-hours
+state with one break (`7152:59173`): toggle On, one Hours range, Break 1
+range filled, Add another break, End break earlier. Environment:
+space photos + smoking / own pets / facilities (no House rules). Edit
+environment (`7137:40797`) is one overlay, inline — photos, smoking Yes/No,
+own pets Yes/No + Dog/Cat/Other, facilities checkboxes. No address (own
+overlay), no extra Airbnb-style rows. Address is
+**one** operating address (type, number, area, street, instructions), not a
+PO-style list. Edit address (`7128:39448`) reuses the PO Add address form
+minus Tag / Add new / delete — House/villa filled state. Side column: Contact
+sitter, Availability, Services, Admin notes, Environment, Address. Snapshot
+cards stay on list/stats only.
+
+**Sitter — Profile actions** (`Profile - action`, `7222:45595`) is the twin of
+PO `Single pet owner profile - action`. Overflow on General (`⋯`): Edit profile ·
+Generate monthly report · Delete profile. Destinations: Edit sitter form,
+Emirates ID overlay, Device info, Delete account confirm (Error button), Admin
+notes, Activities log, Reviews + delete-review confirm. **Generate monthly
+report** is in the menu only — no dedicated screen. Reset password is
+out of scope. Pet Sitters on FigJam is closed. Same deactivate/delete rules as PO (permanent delete; deactivate
+restores on login within 30 days), **plus an admin delete gate**: if the sitter
+has Live / Upcoming / Requested bookings, Delete opens **Pet Sitter Profile -
+Delete blocked (open bookings)** (`7228:79523`) instead of the confirm. List
+those bookings with View; **View bookings** / View go to booking detail
+(Reassign · Cancel). Completed and Canceled do not block. No fav-sitter or PO
+address-book rows. Hub dummy: Sarah Martinez.
+
+| Status | Header tint | Dot |
+|---|---|---|
+| Pending | `Surface/Warning/Light - hover` (orange) | `Icon/Warning` |
+| Verified | `Surface/Information/Light - hover` (blue) | `Icon/Information` |
+| In academy | `Surface/Brand/Light - hover` (coral) | `Icon/Active` |
+| Graduated | `Colors/Dark Blue/50` (navy wash) | `Colors/Dark Blue/500` |
+| Approved | `Surface/Success/Light - hover` (mint) | `Icon/Success` |
+
+**Booking snapshot** (list + statistics, 4 cards). Pending in this chat = **Requested**. **Accepted** = sitter accepted the request. **Confirmed** = PO paid — same pile as **Live** (Live = it started). **Ready** exists; do not label it on admin cards/filters yet. Seven labeled statuses. Locked grouping (**1**):
+
+| Card | Big number | Secondary (≤3) |
+|---|---|---|
+| Total bookings | all 7 labeled | **Completed** |
+| Requested + Accepted | Requested + Accepted | Requested · Accepted |
+| Confirmed + Live | Confirmed + Live | Confirmed · Live |
+| Declined + Canceled | Declined + Canceled | Declined · Canceled |
+
+**Booking statistics** (`Booking List - Statistics Dashboard`, `7313:53420`) sits to the right of Card View in List `7209:47866`. Same four piles on volume charts: Completed · Requested+Accepted · Confirmed+Live · Declined+Canceled. **Mixed** = more than one service family, or both dogs and cats, on the same booking. Promo is lowest priority. Request hour = when the owner sent the request (UAE), pillars `08–12` · `12–16` · `16–20` · `20–24` · `00–04` · `04–08`.
+
+Pile colors (semantic, not brand-as-total):
+
+| Pile | Token | Hex |
+|---|---|---|
+| Total (headline, not a pile) | Dark blue | `#393a56` |
+| Requested + Accepted | Warning | `#f69a58` |
+| Confirmed + Live | Information | `#3faaff` |
+| Completed | Success | `#23a9af` |
+| Declined + Canceled | Brand / Error | `#ef5c59` |
+
+Coral/red on this page is declined + canceled only. Generic volume (service, pets, promo, paths) uses Dark blue. Request hour uses Warning. Species stays blue = dogs, pink = cats.
+
+| Priority | Panel | Cut |
+|---|---|---|
+| P0 | Snapshot | 4 cards (locked) |
+| P0 | Through time | 4 piles (+ total line) |
+| P0 | By emirate | 4 piles stacked |
+| P1 | By service | Walking · boarding · sitting · home visit · **mixed** |
+| P1 | By frequency | One-day · Continuous · Multiple days · Repeating (552 card like `6896:18512`: `Column` + overlay `6825:33749`, no row icons; Brand 600 / 500 / 300 / 200) |
+| P1 | By number of pets | 1 · 2 · 3+ |
+| P1 | Dogs vs cats | Dogs · cats · **mixed** |
+| P1 | Request hour | 6 pillars, request count |
+| P1 | Time to accept | Same 552 overlay as frequency. `< 4h` · `4–8h` · `8–16h` · `16h+` (last bar covers 16–24 and 24h+ so the overlay stays 4 rows like `6896:18512`) |
+| P2 | Service-first vs sitter-first | Two paths |
+| P2 | Who canceled | Owner · sitter |
+| P3 | Promo vs none | Yes/no; not dramatic |
+
+Page groups: snapshot → time (through time) → place (emirate) → bag (service, frequency, pets, species) → ops (hour, time to accept, path, who canceled) → promo last.
+
+**Store reviews** (`Store reviews - Table View`, `7700:109625`) sits in Reviews (`7699:81266`) to the right of Feedback detail. Tabs Table / Statistics (dashboard not drawn). Two `.general info card` Property 1=2 (no 2-card `General info` wrapper): Total reviews (Dark blue, `message-square`) · Overall review (Success, `star`), each App Store · Google Store. Segmented All / App Store / Google Store. **No Add new. No card view.** Table: Name · Store · Rate · Review · Date · View. Product: [`admin-reviews.md`](../../docs/product/flows/admin-reviews.md).
+
+**Promo codes list** (`7512:64021`) — designer lock, do not restyle. Tabs Table / Statistics, four `General info` cards (`Property 1=4`), segmented All / Active / Expired / Deactivated, table, Add new. **No card view.** KPI: Total codes · Times used · **Discount applied** · Payments with promo.
+
+**Promo statistics** (`Promo Codes - Statistics Dashboard`, `7615:97879`) sits to the right of the list. Same 4 KPI cards; Total codes = inventory, the other three = This month. No segmented. Period on Uses through time (`This month`). Panels: uses through time (Times used + Unique owners) · most used codes (552 Column + overlay) · first-time vs repeat · % vs AED · uses by emirate · uses by service. Product: [`admin-promo.md`](../../docs/product/flows/admin-promo.md).
+
+**Notifications home** (`Notifications`, `7582:70321`). Two `.general info card` Property 1=3 (no 2-card `General info` wrapper): Sent (Dark blue, `bell`) · Open rate (Success, `percent`), each with In-app · Push · Email. Period on `stats heading` (This month default) uses Filter Date options (This week · Last week · This month · Last month · Between) — open state `7582:100193`. Drives cards + through-time + table. Segmented All / Marketing / General / Personal filters the table only. Product: [`admin-notifications.md`](../../docs/product/flows/admin-notifications.md).
+
+**Support Notifications** — Cloudflare layout locked. Main = sent list; create is a separate screen.
+
+| Screen | Node | Notes |
+|---|---|---|
+| Sent list | `7616:81299` | Title + table + Add new. Columns dummy. View → sent detail |
+| Sent detail | `7646:74265` | Title = send Title. 2× `.general info card` P1=3: Received (Dark blue, `bell`) · Opened (Success, `eye`), each In-app · Push · Email. Cards: Notification (Title · Message · Date) · Specifications (Send to · Channels · filters). Recipients table: Title · Receiving date · Open date · In-app · Push · Email — per channel: dash (not sent) · `Table status` Not opened (pending) · Opened + success check. No View. Dummy Service update |
+| Create new | `7606:73604` · `7616:81241` | Stacked fields, tabs Create new / Templates, Cancel · Send |
+| Templates | `7616:81319` | Templates selected. Search + table: Updated · Name · Message · Preferences · View · Use · ⋯. **+ Create template** |
+| Create template | `7638:71893` | Full page, same send setups + **Template title** first. Cancel · **Save template** |
+| Templates overflow | `7638:99470` | ⋯ menu: Make a copy · Delete |
+| Make a copy | `7638:99639` | Dim 70% + 760: Template title · Cancel · Continue (Brand) |
+| Edit template | `8138:92523` | Dim 70% + 760 popup. Same fields as Create template, filled. Cancel · Save changes |
+| Delete template | `7638:99808` | Dim 70% + 659 `Pop up`: confirm · Cancel · Delete (Error) |
+| After-send confirm | `7616:81356` | Dim 70% + 659 `Pop up`: question · **Don’t ask this again** (Checkbox 24) · Cancel · Create template |
+
+Product: [`admin-notifications.md`](../../docs/product/flows/admin-notifications.md). Extra filters later (Summer).
+
+**Content** is one sidebar parent, eight children. Only these: Services · Additional services · Pet (types) · Vaccines · FAQ · FAQ categories · Content (one section) · Notification icon. Lists are card grids (image + fields + Open). **Open** is one universal popup for every child — `Content - Pet Services - Open` (`7655:75163`), from Services dummy. Dim 70% + 760: `Pop up heading` (item title) · `Upload image` · `Text area` · Delete (`Primary` `Error`) · Edit (`Primary` `Brand`). Product: [`admin-catalog.md`](../../docs/product/flows/admin-catalog.md). Sidebar structure is IA only — do not restyle nav.
+
+**Detail Active** (`Promo Codes - WELCOME20`, `7561:66695`): title = code, `User status` Active, **Edit settings** → Edit. Four cards for this code: Times used · Unique pet owners · Discount applied · Payments with promo. KPI chips always `white/Icon` on the color square. Booking usage table under the cards: Booking · Pet owner · Status (`Booking status`) · Dates · Service · Saved · Total · View. Eye → booking detail. No Add new. Product: [`admin-promo.md`](../../docs/product/flows/admin-promo.md).
+
+**Payouts — month** (`Finance - Payouts - August 2026`, `7538:66309`) sits to the right of **Finance - Payouts** (`7512:63015`). Drill-in, not a stats sibling. Breadcrumbs 4: Home / Finance / Payouts / August 2026. No chart. No edit.
+
+Four `General info` 1-line cards (`Property 1=4`), no trend: Bookings `1,842` (Dark blue, `book-open`) · Earnings `142,400 AED` (Success, `credit-card`) · Pet sitters `214` (Info, `users`) · Date `1 Aug 2026` (warning, `calendar`).
+
+**Didn’t receive pin** above the table (full-width 1128, same banner shell as upcoming payout, no View): `6 sitters didn’t receive` · `3,940 AED`. Segmented All / Paid / Didn’t receive. Table: checkbox · Sitter (Name) · Bookings · Amount · Status (`Booking status` Completed=`Paid`, declined=`Didn’t receive`) · Reason · View. Dummy failed rows first (No IBAN / IBAN rejected / Send failed). Product: [`admin-finance.md`](../../docs/product/flows/admin-finance.md).
+
+**Refunds list** (`Finance - Refunds`, `7489:74886`) is the request queue (not a ledger). Table: Date · Owner · Related (`#4527` or `Session 04`) · Canceled by · Amount · Status (`Booking status` Requested / Completed / Canceled) · View.
+
+**Refund detail** (`Finance - Refunds - Detail`, `7562:94663`) is a **popup** on that list (not a full page). Dim 70% + modal 760, `layoutPositioning = ABSOLUTE`. Opens from list **View**. Ops review + **Save note** only — no edit amount, no fire Mamo, no change destination. Not a 2-column profile-report grid.
+
+Money hero: refunded AED (Success `#23a9af`, H4-dashboard 32/38) + `Booking status` Completed + owner · `Link` Session 04 · `Link` `#4527`. Three `General info` 1-line cards (`Property 1=3`): Full charge (Dark blue, `credit-card`) · Withheld (warning, `percent`) · Refunded (Success, `check-circle`). Then stacked dates (Requested → Sent) + payment method (card last4 / Apple Pay / Google Pay, not IBAN) + canceled by. `Text area` Note. Close Tertiary · Save note Primary Brand. Dummy: `RF-4527-04`, Emma Wilson, Session 04 of `#4527`, 1,200 / 30 / 1,170 AED, Visa ···· 4242, owner cancel, Completed. Product: [`admin-finance.md`](../../docs/product/flows/admin-finance.md).
+
+**Booking — Detail** (`Booking Detail - #4527`, `7162:93451`) sits to the right of Booking List Card View. It is a **booking breakdown** (who, bag, money, session index). **One-day booking** (`Booking Detail - #4102`, `7354:87944`) sits to its right in Detail `7209:47867` — same shell, slimmed: Frequency One-day, no Weekdays, Dates 18 Aug 2026, Window 09:00–10:00, Promo No, one pet (Bella / Dog), one path Walk 60, one visit row (not Session 01) that opens the no-rail session page. Dummy Live, Bella, Walk 60. **Session detail** is a full page (`Session Detail - #4527 / Session 04`, `7186:47558`): Fresha-style **session list** on the left (this booking’s sessions; selected = coral stroke), Fiverr-style **details + checklist** in the middle, **Track** on the right (Window → Picked up → Drop). No admin notes. No Finish — **Drop** closes the session. Header: Reassign · Cancel · Drop. Quiet **Refunded** on the canceled session in the list. Dummy: Session 04 Live, pickup 08:12, drop empty.
+
+**One-day session** (`Session Detail - #4102`, `7227:51970`) sits to the right of the repeating session in the Session section. Same details + checklist + Track — **no left rail** (one visit, nothing to switch). Breadcrumbs: Bookings → `#4102` (no Session 01). Title is the booking number. Dummy: Bella (dog), Walk 60, Live, window 09:00–10:00, pickup 09:06, drop empty. Checklist: Water on, Snacks off. No add-on.
+
+Header: `Breadcrumbs` Bookings → `#4527`, title is the booking number, `Booking status` (Live). No KPI row. No tabs. No “created, no sitter”. Do not copy live Pet Clutch Morning/Noon/Evening slot tables.
+
+**Pets:** one **horizontal row / slider** (not a vertical stack). Visual cards: photo, species tint (blue = dog, pink = cat), name, main SKU as tag, add-on, pickup as badge. One main SKU per pet. Walk-together = separate is visible on the walking dogs.
+
+**Services** (below general booking details): the bag for this trip. One **path per pet** (one pet = one main SKU). Under each path: that pet’s main service + add-ons, with **duration** on the main SKU (Day / 30 min / 60 min). Add-ons have no duration. Dummy: Luna boarding day care + medicine; Max walk 60; Rocky walk 30 (separate); Milo home visit + water.
+
+**Sessions:** searchable **session cards** in a vertical scroll (same idea as Booking List card feed). Session number + date + window/actual + status + quiet Refunded. View opens session detail. One-day bookings use a single visit row (not Session 01) and open the no-rail session page.
+
+Promo + Mamo on this page. Reviews for **sitter** and **owner** only here; pet reviews on session/pet later. No checklist card and no admin notes on the booking breakdown.
+
+Header actions (not Edit dates, not Start, not Report until locked): Finish (session / service) · Cancel booking · Reassign sitter · Change status. Cancel session lives on the session card. **Refunded** is a quiet label on the booking and on each session (manual record), not a primary button. Reassign and change status are allowed in **any** status.
+
+Dummy for that first frame (`#4527`, Live, repeating Mon/Wed/Fri, FDT 08:00–10:00). **One main SKU per pet.** Luna (dog) boarding day care + medicine add-on; Max (dog) walk 60; Rocky (dog) walk 30 (walks **not** together with Max); Milo (cat) home visit + water add-on. That is boarding + 3 shorts (cap). Sessions mixed: Completed / Completed / Canceled (owner, Refunded) / **Live** / Upcoming / Upcoming. Promo on the trip. Concurrent boarding+short is a **later** frame.
+
+**Other booking statuses are later.** Do not draw Created / Requested / Completed / Canceled / Declined as separate pages now — they are retints of the Live shell. Live repeating + one-day is enough. Next work is **actions on that Live shell** (Reassign · Finish if the sitter did not), not more status frames. No edit-dates / bag-edit form until product asks.
+
+**Cancel** (`Actions` in Booking, beside Session). Same delete-confirm shell (dim 70% + 659 card, Go back Tertiary · confirm Primary Error). Two overlays — not a refund form, no reason field, no who-canceled radio (money stays the quiet Refunded label / Mark for refund on session):
+
+| Frame | Node | Opens from | Confirm |
+|---|---|---|---|
+| `Booking Detail - #4527 - Cancel booking` | `7384:55058` | Booking header / overflow | Cancels the **whole booking**. Remaining sessions canceled; completed stay completed. |
+| `Session Detail - #4527 / Session 04 - Cancel session` | `7384:83630` | Session header **Cancel** | This **session only**. Other sessions stay. |
+
+**Reassign** (`Actions`). Two entry scenarios, same panel, different amount of data. Force assign — the new sitter is on immediately, **no acceptance step, no confirm popup, no notification**. **Approved** sitters only. Product rules in [`booking-live-session.md`](../../docs/product/flows/booking-live-session.md).
+
+| Scenario | Frames | What it carries |
+|---|---|---|
+| **1 — canceled in the app** (sitter canceled, owner chose substitute over refund) | State `7388:56218` · panel `7389:56502` · after `7417:71358` | Session is `Canceled`, **Reassign is Primary** in the header, Drop/Cancel hidden, Track and Checklist hidden (nothing happened). `Cancellation` card sits **below** `Session details`: canceled by · canceled on · reason · owner asked for · **note for substitute**. Panel repeats the reason + note read-only. |
+| **2 — off-platform (WhatsApp)** | not drawn yet | Sitter never canceled in the app. Session stays Live / Upcoming, Reassign is a normal Tertiary header button, **no reason and no note blocks** — nobody typed them. |
+
+**After reassignment** (`Session Detail - #4527 / Session 04 - Reassigned`, `7417:71358`): status becomes **`Reassigned`**, the card retitles to `Reassignment` and gains **reassigned to · reassigned from · reassigned on + by admin** above the original cancellation facts. Header drops to Reassign · Cancel (no Drop — not started, no Mark for refund). This card is the **only** record of the swap, since the app never tells the owner.
+
+`Reassigned` was **added as a real variant** on the local `Booking status` set (`6845:43060`) — Information blue dot, all four Color × Size combos. **The library is not republished**, so nested instances that come through a library `Card` still resolve to the old set; those must be fixed with `swapComponent` to the local variant (e.g. `7430:84480` for Has color / 12) until someone publishes.
+
+**Refund branch** — the other half of the owner's fork. Same shell, `Owner asked for` reads `Refund`, and the **note for substitute row is hidden** (nobody is taking the job):
+
+| Frame | Node | State |
+|---|---|---|
+| `... - Refund requested` | `7431:57219` | Session stays `Canceled`. **Mark for refund** is Primary Brand, sits right. Reassign stays Tertiary — ops can still flip to a substitute. |
+| `... - Refunded` | `7431:84864` | Mark for refund gone, a `Refund` row records *marked refunded · when · by admin*, and the quiet **Refunded** label joins the session in the rail (same treatment as Session 03). |
+
+Panel (760, confirm shell): heading → **Sessions to reassign** (checkbox rows, canceled one pre-checked, others selectable) → read-only note from the sitter → **New sitter · Approved only** (search + rows, selected row = `#fff6f6` fill / `#ef5c59` stroke, View profile) → Cancel (Terciary) · **Assign sitter** (Primary **Brand**, not Error — reassign is not destructive).
+
+**One sitter per pass.** To send two sessions to two different sitters, ops runs the panel twice. No per-session sitter picker. Sessions still without a substitute get **no flag and no counter** — they stay `Canceled`.
+
+**The owner is never told in the app.** Customer service handles it over WhatsApp. Admin is the only record, so the swap must stay visible on our side (activity log line, from → to).
+
+## Tables
+
+**`.row` is a column, not a row.** Each `.row` holds one `.tableheader item`
+followed by N `.tablecell item` instances stacked vertically. Tables are
+assembled column-major, left to right. On the reference page the columns sit at
+x = 0, 50, 222, 411, 558, 685, 797, 887, 1006 (first is the 50px checkbox column).
+
+**Row height is 50, cell insets are 10 left / 11 top.** This breaks the 4px rule
+and that is intentional — new tables match the existing 50px rhythm so they line
+up with current screens. A 4px migration is a separate future cleanup.
+
+Column widths may total slightly more than 1128 (reference sums to 1131), which
+drives the horizontal scrollbar. That is deliberate, not a mistake.
+
+## Components
+
+All keys below are from the Admin Panel library. Dot-prefixed components are
+private — they don't surface in `search_design_system` and can't be imported
+into other files, but they are directly usable when working inside the
+Admin-Panel file itself.
+
+Chrome and navigation: `Sidebar` `2c6a066684e44cdbc6f23b54aa6733323bd1909e` (local `6939:22707`) ·
+`Breadcrumbs` `c0519efca9ea308ca84b52ad5c62d1dcbdc671c5` ·
+`tabsss` `380eccb522facc6baed2dcaba8289cb2be624785` ·
+`.tabitems` `c652e04056468a3c1f07d5b116f637e494494474` ·
+`segmented control` `832d80bea8ce320bbea380734d55b1cc43ce41d3` ·
+`.segmented control item` `b3e245e8d3cc1e16ad0d9dfee7cf773d06a450a4` ·
+`Search` `76a143a9dbeb41d2fcf9abef00122674da3f37a8` ·
+`Scroll` `75e60633c152334231d9c291e670e4c9619982d7` ·
+`Notifications/profile` `32b3794b611e105276636d1d06792e2b045eddc8` (local, `7754:84457`) ·
+`Notification panel` (local, `7900:109587`) ·
+`Notification item` Unread/Read (local, `7899:109509`) ·
+`Profile panel` (local, `7918:111667`) ·
+`Profile action` (local, `7918:111655`)
+
+Tables: `Table` `a7381c559f3b7ea9e71927b447efef07f3174445` ·
+`.row` `203324f82261d3bcfaa9e34aae180d37c4df9bc8` ·
+`.tablecell item` `df9c4d31ff7721080e0482dccfa87937aaffcf59` ·
+`.tableheader item` `14b92667b1f1d0148243f60c7a8a8ff10c053db0` ·
+`Table control` `9a1d8aadd0671c002e1973d40ad207ae19e2a568` ·
+`Table footer` `9281249a0646a403f53654b3ae61715217c150ad` ·
+`Table navigation` `9b2bf38101420548f3a824e9ef0522bd8e6726fd` ·
+`.table nav item` `fb7ab5089ca38c84c86631d508cb50f3c3467527` ·
+`Table status` `90f50cf4fb2fb98b4fbfbee43a189cb777a196b9` ·
+`Pagination` `ca3a1d84dda6820f248b836ec0eca56493c8246d` ·
+`.pag item` `8c2880fdab877515eefaa7b9306745f3aba7dfa5`
+
+Filters and sorting: `Filter` (set) `16ee75565fcd2a90d4a945c84517b4f48358f120` ·
+`Filter` (single) `1df5861b9937343173c77c0b9e96b4210cf9dd38` ·
+`Selected filters` `0a8a6036f77678b9d38158cf160e98c9e27331cb` ·
+`Sory by ` `b9ce20232f9f51e548d42890953cedc64faac112` ·
+`.dropdown item` `9da8d5e35ccb0f7bc2d655031db7260f59fa5d18`
+
+Status badges: `User status` `f54989d0eb28f1c603a75fcbc5625e1159f447ef` ·
+`Sitter status` `5787bc623428a5062f9d493b53be045e61ad5062` ·
+`pet status` `1f2693520b9c97be3790dfbcebd318899a85a7a5` ·
+`Booking status` `0caee33a88dd3404196647ca9c398140b4d80e8c` ·
+`Vaccination record status` `9b6d60e532683491c91086739d4a6416bb89b870` ·
+`Card header status` `873ec70575aa3e4fdd4306f548c5f3635f593da5`
+
+Detail layouts: `General info` `e617322d43c1153893219b84f7eb1549fea6296c` ·
+`.general info card` `c7b1614f4ca9ed11fde6418f07e1f7c1457d6c2a` ·
+`.generalinfo heading` `172f8a3fe3f7a9ab8d5c5b1460e4a6e27528f183` ·
+`.generalinfo icon` `55c8cb8fd8fc66e132fb8077dc78bffef2eb2c71` ·
+`.info row item` `bb84d896fc55c34014f80d9fefbca148b38e0246` ·
+`Card` `bed1449542c61f2418fb04af3791d226425398a9` ·
+`card-header` `b06266d38e44edc27a5625ed8b875a9ee4d8b34b` ·
+`User card` `1a3b7b0b4afdaabf809f2553c7e458e2e34603fd` ·
+`Sitter card` `d7f8f34ab1153b4775c886bfd7aa0433db75ead1` ·
+`Profile header` `32b359375d29366d249b7de474f84fad05dff80f` ·
+`Booking history` `973d98d5bbcb9fb9e039987329457c896d9bfc58` ·
+`Reviews` `f8982727123f885c32b01cef179e13954b6c8277` ·
+`Notes` `6c6408feefc16f480b7dd3793b968466dad1ddf5` ·
+`Transactions` `927d51acb9186e89564412f6121511f53417489e` ·
+`Acitvity log` `e13f337c409687676ead000bf5d6290b694915b2` ·
+`Address details` `1e3f708cce61d3ed34c5fe3540dd412d79d91487` ·
+`Single address` `6a1fdbc4cd8894a3700e7759ff8ee7098071e86d` ·
+`Services booked before` `d9707e0c2faec70c1a865096798e0baf5c2354eb` ·
+`Fav sitters` `2a700f9015997bf658665a3ece2782ef1ff84eb4` ·
+`notifications` `e1044639172b836fb400c9f804812b2a05db02c2` ·
+`Pop up` `e8a63e8b05ed38f2c4f202ee2208cd21d5683928` ·
+`Pop up heading` `b3163f790a613c9dad34a4d15b8f4d8eaf3a1f62` ·
+`Upload image` `3ecf9602a6b8fba5deac37613a38bdd449b7e082`
+
+Charts: `stats heading` `9cfcdf6fb808176fb3ac09f653e6f031e18f5b28` ·
+`Column` `de085727dc7b9a16e422ba0134ffe745112e3d65` ·
+`stats up/down` `d46943a311b338ffc3cfe745985efa25581833e1` ·
+`stats/left right` `47daf566b16d561c093003ee34c551194e123b97` ·
+`.Stats row` `edc5dd1fe3abf6c57ace396eee1962e01f2a0563` ·
+`.column stats` `629961616b89e2ed133ffe6256cc67205edad6a6` ·
+`.bottom row` `7f8909dd5e0571886368c8c73b7563d28020bca5` ·
+`.side row` `2c4ec4855f57c40655a31c2ea920353e19fb74a9` ·
+`Graph line` `5dbf580190a2df62e1b4a336971329f29ff52d58` ·
+`Lines with dots` `f8f69a68b73a3220eb8a079a59ca54315d90ded2` ·
+`Text statistic` `55600118d33cd3d8fea5b83c507593f942ecf10a` ·
+`Stats medium` `811898ce3ccabc214d8e2dcbaf3cf108e55c1a62` ·
+`Graphics hover` `f91b91f5be579bae497d1dc96d81b9a63c47f43f` ·
+`Component 9` `df13d98f7376d75e734e8972c14d58e5b02c082e` (stacked emirate bar; `size` 2|3|4|5; `Color` Brand|pink|skyblue|Status)
+
+## Modals and overlays
+
+Screen frames are **HORIZONTAL auto layout** (sidebar + content column). Anything
+overlaid on top — dim rectangle, modal, popup — must be set to
+`layoutPositioning = 'ABSOLUTE'` before its x/y will hold. Otherwise auto layout
+pushes it out to the right of the content column.
+
+Dim overlay: black at 70% opacity, 1440×1024, absolute at (0,0). Taller screens (this list is 1171) stretch the dim to the frame height.
+
+**Notifications overlay** (`Pet Owner List - Table View - Notifications`, `7907:113085`) sits to the right of Pet Owner List (`7893:108707`). Same list, plus dim + right `Notification panel` (`7900:109587`, 440×frame height, absolute x=1000). Bell on `Notifications/profile` opens this frame. Close goes Back. Rows are `Notification item` Unread/Read (`7899:109509`): brand-light fill + coral dot when unread. Header: title · unread count · Mark all as read (Small Secondary Brand) · `dark/Icon/x`. Footer: **Delete all**. Dummy: new owner, document uploaded, booking completed, pending verification. **Delete all** opens the same 659 `Pop up` as other destructive confirms: “Are you sure you want to delete all notifications?” · Cancel Tertiary · Delete Primary Error. Extra dim 70% over the open panel. Reuse the panel instance on any 1440 screen — do not restyle.
+
+**Profile overlay** (`Pet Owner List - Table View - Profile`, `7918:111704`) sits to the right of the notifications overlay. Same dim + right `Profile panel` (`7918:111667`, 440×frame height, absolute x=1000). Avatar / name on `Notifications/profile` opens this frame. Close goes Back. Header: Profile · `dark/Icon/x`. Identity: chrome photo · **Vukasin Minic** · Role **Admin** · email `vukasinminic03@gmail.com`. Actions are `Profile action` rows (`7918:111655`): **Reset password** (lock) · **Log out** (`dark/Icon/log-in` — the set has no log-out glyph). No reset form on this overlay — menu only. Reuse the panel instance on any 1440 screen — do not restyle. **Reset password** opens **Profile - Recovery sent** (`7923:112473`): same drawer, bottom 392 card, success check from Recovery email sent, copy **Recovery email sent** / *We sent you a recovery email on vukasinminic03@gmail.com. The link provided wil be valid for 2 hour.* Card X goes Back.
+
+Modal container: VERTICAL auto layout, hug height, fixed width (760 on the
+passport modal), padding 32 top / 24 sides / 24 bottom, gap 24, corner radius 24.
+
+Content order inside a modal, top to bottom: heading, then **editable fields**,
+then read-only info rows, then media, then the action row. Editable controls come
+before the data they modify — do not bury the status field under the read-only
+block.
+
+Inputs are **not** full width. Size them to what the content needs (the status
+select is 344 in a 760 modal), even though the rows around them fill.
+
+`.info row item` rows: label column fixed at 122, value FILL, 20 gap between rows.
+Abbreviate labels to match the table conventions elsewhere — `MC number`,
+`MC expiry date`, not the full words.
+
+Action row: FILL width with `primaryAxisAlignItems = 'MAX'` to right-align, gap 12.
+Cancel is `Hierarchy=Terciary`, the confirming button is `Hierarchy=Primary`.
+
+## Buttons — brand vs error
+
+`Button` has a `Brand/Error` variant property. **`Error` means destructive.** Use
+it only for actions that delete or otherwise cannot be undone. Everything else,
+including Save changes, uses `Brand` — that is `#ef5c59`, the same coral as
+"+ Add new".
+
+## Input Filed — icons
+
+`Input Filed` (note the typo in the component name) carries its own icon slots.
+To make a select, set the boolean `Right Icon#18194:296` to true and swap
+`↪ Right Icon#18194:309` to `dark/Icon/chevron-down`. Never place a separate
+chevron instance next to the field.
+
+## Tokens
+
+Colors, resolved from the reference page:
+
+| Role | Token | Value |
+|---|---|---|
+| Brand | `Surface/Brand/Active`, `Stroke/Brand/Active` | `#ef5c59` |
+| Brand tint | `Surface/Brand/Light` | `#fff6f6` |
+| Headings / body dark | `Text/Headings`, `Text/Body Dark`, `Icon/Dark` | `#252749` |
+| Secondary text | `Text/Body Light`, `Icon/Light` | `#8e8e8e` |
+| Placeholder | `Text/Placeholder text` | `#bbbbbb` |
+| Success | `Text/Success`, `Icon/Success`, `Surface/Success/Active` | `#23a9af` |
+| Warning | `Surface/Warning/Active` | `#f69a58` |
+| Information | `Icon/Information` | `#3faaff` |
+| Page canvas | `Dashboard BG` | `#ffffff` (pure white, not tinted) |
+
+Type is Inter throughout. Use the **Admin Panel `Text` collection** for body
+copy — 16/26, 14/20, 12/18, 10/13 — not App Design's `Body Large|Medium|Small`
+(16/19, 14/18, 12/16). The existing reference screens are bound to the App
+Design ramp; that is a known inconsistency and new screens should not copy it.
+Headings agree across both: `Headings/H4 - dashboard` is 32/38 semibold,
+`H5 - dashboard` is 24/28 medium, `Title` is 12 medium.
+
+Spacing observed in use: 4, 8, 12, 16, 32, 40.
+
+## Chart colors
+
+Two palettes. Do not mix them on one graphic.
+
+**Brand pair** (these two may share a chart): coral `#ef5c59` and dark navy `#252749`.
+
+**Secondary** (these may share a chart): orange `#f69a58`, sky blue `#3faaff`, red, mint `#23a9af`, pink. A graphic that uses any of these does not also use the brand pair.
+
+**Magenta/pink means cats. Blue means dogs.** This is a species mapping, not a
+categorical palette — keep it consistent wherever both species appear, and do
+not reuse those two colors for unrelated series. Status stacks (booking piles,
+sitter lifecycle, emirate bars) stay on the secondary palette. They do not
+also use coral or dark navy.
+
+## Naming traps
+
+- `Stroke/Neutral/Light` (`#e8e8e8`) and `Stroke/Neutral/light` (`#f0f1f2`)
+  differ only by letter case. Bind border colors by key, never by name.
+  Nearby: `Stroke/Neutral/Light Card` `#f2f2f2`, `Stroke/dashboard elements` `#d2d2d2`.
+- Several component names contain typos and must be matched exactly:
+  `Sory by ` (with a trailing space), `Acitvity log`, `contact onwer`, `tabsss`.

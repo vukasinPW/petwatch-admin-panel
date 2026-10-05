@@ -1,0 +1,29 @@
+---
+description: Where PetWatch app product truth lives, and how to treat gaps when designing admin
+alwaysApply: true
+---
+
+# PetWatch product knowledge
+
+App behavior is documented in `docs/product/`. Start at `docs/product/INDEX.md`.
+
+- Treat those files as source of truth for flows, statuses, and rules.
+- `UNKNOWN` means the canvas does not specify it — ask, do not invent.
+- If Figma draws a path for one twin (e.g. email) and not the other (phone), **apply the same logic**. Product will call out exceptions.
+- When designing an admin screen, open the matching flow file and flag any app rule, status, exception, or notification that has no admin surface.
+- Figma screens show designed UI states. They are not complete product rules.
+- **Capture logic, not copy.** What matters is how the app works (gates, statuses, who can do what). Figma copy is not 1:1 with the live app and may be missing — do not invent replacement strings, and do not block on wording.
+- **When product shares a new flow, ask blocking questions immediately** — in the same turn as acknowledging the Figma, not after the write-up. Ask only what changes gates, who can do what, or admin (2–5 sharp questions). Do not wait for “any questions?”.
+
+## Keep the files current (same turn)
+
+Chat is not memory. If a **product rule** changes this session, **patch** `docs/product/flows/*.md` and `INDEX.md` in that same turn. Do not wait for “update the docs.” Do not rewrite a whole file for a one-line change.
+
+Update when any of these happen:
+- New or replaced Figma flow
+- Product corrects a gate, status, who-can-do-what, or admin hook
+- A working guess becomes locked, or a locked rule is reversed
+
+Do **not** dump admin visual tweaks into product docs (spacing, components). Those go in `.cursor/rules/petwatch-admin-screens.mdc` only if the **admin screen spec** itself changed.
+
+If the session only designed pixels and no app rule moved, do not touch `docs/product`.
